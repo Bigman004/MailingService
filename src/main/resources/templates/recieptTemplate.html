@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Receipt · A spark technology</title>
+
+
+    <style>
+        /* ── Reset ── */
+        body, table, td, div, p { margin: 0; padding: 0; }
+        img { border: 0; display: block; }
+        table { border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; }
+
+        /* ── Mobile breakpoint ── */
+        @media only screen and (max-width: 600px) {
+
+            /* Shell goes fluid */
+            .shell {
+                width: 100% !important;
+                border-radius: 0 !important;
+            }
+
+            /* Hide the decorative left panel on mobile */
+            .panel-left {
+                display: none !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+                mso-hide: all !important;
+            }
+
+            /* Right panel fills full width */
+            .panel-right {
+                width: 100% !important;
+                display: block !important;
+            }
+
+            /* Receipt body padding tightened */
+            .receipt-body-td {
+                padding: 16px 16px 12px !important;
+            }
+
+            /* Title font smaller */
+            .receipt-title {
+                font-size: 17px !important;
+            }
+
+            /* Meta chips stack vertically */
+            .chip-row {
+                display: block !important;
+                width: 100% !important;
+            }
+            .chip-cell {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 8px !important;
+                box-sizing: border-box !important;
+            }
+            .chip-spacer {
+                display: none !important;
+            }
+
+            /* Grand total amount smaller */
+            .grand-amount {
+                font-size: 15px !important;
+            }
+
+            /* Footer padding tightened */
+            .footer-td {
+                padding: 12px 16px 18px !important;
+            }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:20px 12px;background:#f0ede5;
+             font-family:Arial,Helvetica,sans-serif;
+             -webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+
+<!-- OUTER WRAPPER -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0"
+       role="presentation">
+    <tr>
+        <td align="center">
+
+            <!-- SHELL -->
+            <table class="shell" width="700" cellpadding="0" cellspacing="0"
+                   border="0" role="presentation"
+                   style="max-width:700px;width:700px;
+                          border:1px solid #d5d0c4;border-radius:12px;
+                          overflow:hidden;background:#faf9f6;">
+                <tr>
+
+                    <!-- ════════════════════════════════════════
+                         LEFT PANEL — hidden on mobile
+                         ════════════════════════════════════════ -->
+                    <td class="panel-left" width="210" valign="top"
+                        style="width:210px;background:#1a1a2e;
+                               padding:28px 18px;vertical-align:top;">
+
+                        <!-- Icon -->
+                        <div style="font-size:22px;margin-bottom:6px;">🛒</div>
+
+                        <!-- Brand -->
+                        <div style="font-size:15px;font-weight:bold;color:#ffffff;
+                                    font-family:Arial,Helvetica,sans-serif;
+                                    margin-bottom:2px;">A spark</div>
+                        <div style="font-size:9px;letter-spacing:2px;
+                                    text-transform:uppercase;color:#9b97d4;
+                                    font-family:Arial,Helvetica,sans-serif;
+                                    margin-bottom:5px;">TECHNOLOGY</div>
+                        <div style="font-size:10px;color:#7a77b8;
+                                    font-family:Arial,Helvetica,sans-serif;
+                                    margin-bottom:6px;">Your everyday marketplace</div>
+                        <div style="font-size:10px;color:#6b6898;
+                                    font-family:Arial,Helvetica,sans-serif;
+                                    line-height:1.7;margin-bottom:18px;">
+                            14 Commerce Avenue<br/>
+                            Lekki Phase 1, Lagos<br/>
+                            +234 901 234 5678
+                        </div>
+
+                        <!-- Divider -->
+                        <div style="height:1px;background:rgba(255,255,255,0.08);
+                                    margin-bottom:16px;"></div>
+
+                        <!-- PAID pill -->
+                        <div th:if="${receipt.payment}"
+                             style="display:inline-block;
+                                    background:rgba(29,158,117,0.2);
+                                    border-radius:99px;padding:5px 12px;
+                                    margin-bottom:14px;">
+                            <table cellpadding="0" cellspacing="0" border="0"
+                                   role="presentation">
+                                <tr>
+                                    <td style="width:7px;height:7px;
+                                               background:#5dcaa5;border-radius:50%;
+                                               font-size:0;line-height:0;">&nbsp;</td>
+                                    <td style="font-size:11px;color:#5dcaa5;
+                                               font-family:Arial,Helvetica,sans-serif;
+                                               padding-left:6px;">Payment Confirmed</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- UNPAID pill -->
+                        <div th:unless="${receipt.payment}"
+                             style="display:inline-block;
+                                    background:rgba(216,90,48,0.2);
+                                    border-radius:99px;padding:5px 12px;
+                                    margin-bottom:14px;">
+                            <table cellpadding="0" cellspacing="0" border="0"
+                                   role="presentation">
+                                <tr>
+                                    <td style="width:7px;height:7px;
+                                               background:#f0997b;border-radius:50%;
+                                               font-size:0;line-height:0;">&nbsp;</td>
+                                    <td style="font-size:11px;color:#f0997b;
+                                               font-family:Arial,Helvetica,sans-serif;
+                                               padding-left:6px;">Payment Pending</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Transaction ref chip -->
+                        <div style="background:rgba(255,255,255,0.05);
+                                    border:1px solid rgba(255,255,255,0.1);
+                                    border-radius:8px;padding:9px 11px;
+                                    margin-bottom:22px;">
+                            <div style="font-size:9px;text-transform:uppercase;
+                                        letter-spacing:1.5px;color:#6b6898;
+                                        font-family:Arial,Helvetica,sans-serif;
+                                        margin-bottom:4px;">Transaction Ref</div>
+                            <div th:text="${receipt.reference}"
+                                 style="font-size:10px;color:#c8c4f4;
+                                        font-family:'Courier New',Courier,monospace;
+                                        word-break:break-all;"></div>
+                        </div>
+
+                        <!-- Barcode -->
+                        <table cellpadding="0" cellspacing="0" border="0"
+                               width="100%" role="presentation">
+                            <tr>
+                                <td align="center">
+                                    <table cellpadding="0" cellspacing="0" border="0"
+                                           role="presentation"
+                                           style="margin:0 auto 6px;">
+                                        <tr style="vertical-align:bottom;">
+                                            <td style="width:2px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:1px;height:32px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:3px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:1px;height:26px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:2px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:1px;height:36px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:3px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:2px;height:28px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:1px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:2px;height:20px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:1px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:3px;height:38px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:2px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:1px;height:30px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                            <td style="width:2px;">&nbsp;</td>
+                                            <td style="width:3px;height:44px;background:rgba(255,255,255,0.45);">&nbsp;</td>
+                                        </tr>
+                                    </table>
+                                    <div th:text="${receipt.reference}"
+                                         style="font-size:8px;color:#6b6898;
+                                                font-family:'Courier New',Courier,monospace;
+                                                letter-spacing:1px;"></div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td><!-- /LEFT PANEL -->
+
+
+                    <!-- ════════════════════════════════════════
+                         RIGHT PANEL — always visible
+                         ════════════════════════════════════════ -->
+                    <td class="panel-right" valign="top"
+                        style="background:#faf9f6;vertical-align:top;">
+
+                        <!-- Perforated top edge -->
+                        <div style="height:4px;font-size:0;line-height:0;
+                                    background:repeating-linear-gradient(
+                                        90deg,
+                                        #e0ddd5 0,#e0ddd5 6px,
+                                        transparent 6px,transparent 10px);"></div>
+                        <div style="height:1px;border-bottom:1px dashed #d5d0c4;
+                                    font-size:0;line-height:0;"></div>
+
+                        <!-- ── Receipt body ── -->
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               border="0" role="presentation">
+                            <tr>
+                                <td class="receipt-body-td"
+                                    style="padding:22px 24px 16px;">
+
+                                    <!-- Title + date -->
+                                    <table width="100%" cellpadding="0" cellspacing="0"
+                                           border="0" role="presentation"
+                                           style="margin-bottom:16px;">
+                                        <tr>
+                                            <td valign="top">
+                                                <div style="font-size:9px;
+                                                            text-transform:uppercase;
+                                                            letter-spacing:1.5px;
+                                                            color:#8a8578;
+                                                            font-family:Arial,Helvetica,sans-serif;
+                                                            margin-bottom:3px;">Tax Invoice</div>
+                                                <div class="receipt-title"
+                                                     style="font-size:20px;font-weight:bold;
+                                                            color:#1a1a1a;
+                                                            font-family:Arial,Helvetica,sans-serif;">
+                                                    Order Receipt
+                                                </div>
+                                            </td>
+                                            <td valign="top" align="right">
+                                                <div th:text="${#temporals.format(#temporals.createNow(), 'dd MMM')}"
+                                                     style="font-size:16px;font-weight:bold;
+                                                            color:#1a1a1a;
+                                                            font-family:Arial,Helvetica,sans-serif;
+                                                            line-height:1.2;"></div>
+                                                <div th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"
+                                                     style="font-size:12px;color:#5a5750;
+                                                            font-family:Arial,Helvetica,sans-serif;"></div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Meta chips — stack on mobile via .chip-row / .chip-cell -->
+                                    <table class="chip-row" width="100%" cellpadding="0"
+                                           cellspacing="0" border="0" role="presentation"
+                                           style="margin-bottom:16px;">
+                                        <tr>
+                                            <td class="chip-cell" width="48%"
+                                                style="background:#f0ede5;border-radius:8px;
+                                                       padding:7px 10px;width:48%;">
+                                                <div style="font-size:9px;text-transform:uppercase;
+                                                            letter-spacing:1.5px;color:#8a8578;
+                                                            font-family:Arial,Helvetica,sans-serif;
+                                                            margin-bottom:3px;">Receipt ID</div>
+                                                <div th:text="'#' + ${receipt.id}"
+                                                     style="font-size:12px;color:#3a3830;
+                                                            font-family:'Courier New',Courier,monospace;"></div>
+                                            </td>
+                                            <td class="chip-spacer" width="4%"
+                                                style="width:4%;">&nbsp;</td>
+                                            <td class="chip-cell" width="48%"
+                                                style="background:#f0ede5;border-radius:8px;
+                                                       padding:7px 10px;width:48%;">
+                                                <div style="font-size:9px;text-transform:uppercase;
+                                                            letter-spacing:1.5px;color:#8a8578;
+                                                            font-family:Arial,Helvetica,sans-serif;
+                                                            margin-bottom:3px;">Order Code</div>
+                                                <div th:text="${#strings.abbreviate(receipt.code.toString(), 12)}"
+                                                     style="font-size:12px;color:#3a3830;
+                                                            font-family:'Courier New',Courier,monospace;"></div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Section heading -->
+                                    <table width="100%" cellpadding="0" cellspacing="0"
+                                           border="0" role="presentation"
+                                           style="margin-bottom:4px;">
+                                        <tr>
+                                            <td style="font-size:9px;text-transform:uppercase;
+                                                       letter-spacing:1.5px;color:#8a8578;
+                                                       font-family:Arial,Helvetica,sans-serif;
+                                                       white-space:nowrap;padding-right:10px;
+                                                       width:1%;">Items Purchased</td>
+                                            <td style="border-top:1px solid #ddd9cf;">&nbsp;</td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Item rows -->
+                                    <div th:each="line, stat : ${receipt.item.items}">
+                                        <table width="100%" cellpadding="0" cellspacing="0"
+                                               border="0" role="presentation"
+                                               style="border-bottom:1px solid #ece9e1;">
+                                            <tr>
+                                                <td valign="top" style="padding:9px 0;">
+                                                    <table cellpadding="0" cellspacing="0"
+                                                           border="0" role="presentation">
+                                                        <tr>
+                                                            <td valign="top">
+                                                                <div th:text="${stat.index + 1}"
+                                                                     style="width:18px;height:18px;
+                                                                            border-radius:50%;
+                                                                            background:#e8e4da;
+                                                                            text-align:center;
+                                                                            font-size:9px;
+                                                                            color:#6a6660;
+                                                                            font-family:Arial,Helvetica,sans-serif;
+                                                                            line-height:18px;"></div>
+                                                            </td>
+                                                            <td valign="top"
+                                                                style="padding-left:10px;">
+                                                                <div th:text="${line.itemName}"
+                                                                     style="font-size:13px;
+                                                                            font-weight:bold;
+                                                                            color:#1a1a1a;
+                                                                            font-family:Arial,Helvetica,sans-serif;
+                                                                            margin-bottom:3px;"></div>
+                                                                <div style="font-size:10px;
+                                                                            color:#8a8578;
+                                                                            font-family:Arial,Helvetica,sans-serif;">
+                                                                    Qty:&nbsp;<span th:text="${line.quantity}"></span>
+                                                                    &nbsp;&middot;&nbsp;
+                                                                    Unit:&nbsp;<span th:text="'₦' + ${#numbers.formatDecimal(line.price, 1, 'COMMA', 0, 'POINT')}"></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                                <td align="right" valign="top"
+                                                    style="padding:9px 0;white-space:nowrap;">
+                                                    <div th:text="'₦' + ${#numbers.formatDecimal(line.price, 1, 'COMMA', 0, 'POINT')}"
+                                                         style="font-size:13px;font-weight:bold;
+                                                                color:#1a1a1a;
+                                                                font-family:'Courier New',Courier,monospace;"></div>
+                                                    <div th:if="${line.discount != null and line.discount != '0'}"
+                                                         th:text="'−' + ${line.discount}"
+                                                         style="display:inline-block;font-size:9px;
+                                                                background:#fae8e0;color:#a03820;
+                                                                padding:1px 5px;border-radius:4px;
+                                                                margin-top:2px;
+                                                                font-family:'Courier New',Courier,monospace;"></div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <!-- /Item rows -->
+
+                                    <!-- Subtotal -->
+                                    <table width="100%" cellpadding="0" cellspacing="0"
+                                           border="0" role="presentation"
+                                           style="border-top:1px dashed #d5d0c4;margin-top:10px;">
+                                        <tr>
+                                            <td style="font-size:12px;color:#6a6660;
+                                                       font-family:Arial,Helvetica,sans-serif;
+                                                       padding:8px 0;">Subtotal</td>
+                                            <td align="right"
+                                                th:text="'₦' + ${#numbers.formatDecimal(receipt.amount, 1, 'COMMA', 0, 'POINT')}"
+                                                style="font-size:12px;color:#6a6660;
+                                                       font-family:'Courier New',Courier,monospace;
+                                                       padding:8px 0;white-space:nowrap;"></td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Grand total bar -->
+                                    <table width="100%" cellpadding="0" cellspacing="0"
+                                           border="0" role="presentation"
+                                           style="background:#1a1a2e;border-radius:8px;">
+                                        <tr>
+                                            <td style="padding:11px 14px;font-size:11px;
+                                                       text-transform:uppercase;
+                                                       letter-spacing:1.5px;color:#e8e6ff;
+                                                       font-family:Arial,Helvetica,sans-serif;">
+                                                Total Paid
+                                            </td>
+                                            <td align="right"
+                                                th:text="'₦' + ${#numbers.formatDecimal(receipt.amount, 1, 'COMMA', 0, 'POINT')}"
+                                                class="grand-amount"
+                                                style="padding:11px 14px;font-size:18px;
+                                                       font-weight:bold;color:#ffffff;
+                                                       font-family:'Courier New',Courier,monospace;
+                                                       white-space:nowrap;"></td>
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- /Receipt body -->
+
+                        <!-- Footer -->
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               border="0" role="presentation"
+                               style="border-top:1px dashed #d5d0c4;">
+                            <tr>
+                                <td class="footer-td"
+                                    style="padding:14px 24px 22px;">
+
+                                    <!-- Customer email -->
+                                    <table cellpadding="0" cellspacing="0" border="0"
+                                           role="presentation"
+                                           style="margin-bottom:12px;">
+                                        <tr>
+                                            <td valign="middle">
+                                                <div style="width:32px;height:32px;
+                                                            border-radius:50%;
+                                                            background:#eae7de;
+                                                            text-align:center;
+                                                            font-size:14px;
+                                                            line-height:32px;">✉</div>
+                                            </td>
+                                            <td valign="middle" style="padding-left:10px;">
+                                                <div style="font-size:9px;
+                                                            text-transform:uppercase;
+                                                            letter-spacing:1.5px;
+                                                            color:#8a8578;
+                                                            font-family:Arial,Helvetica,sans-serif;
+                                                            margin-bottom:2px;">Receipt sent to</div>
+                                                <div th:text="${receipt.email}"
+                                                     style="font-size:12px;color:#1a1a2e;
+                                                            font-family:'Courier New',Courier,monospace;
+                                                            word-break:break-all;"></div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Thank-you note -->
+                                    <table width="100%" cellpadding="0" cellspacing="0"
+                                           border="0" role="presentation"
+                                           style="border-top:1px solid #ece9e1;">
+                                        <tr>
+                                            <td align="center"
+                                                style="padding-top:10px;font-size:11px;
+                                                       color:#a09c94;
+                                                       font-family:Arial,Helvetica,sans-serif;">
+                                                Thank you for shopping with A spark
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- /Footer -->
+
+                    </td><!-- /RIGHT PANEL -->
+
+                </tr>
+            </table><!-- /SHELL -->
+
+        </td>
+    </tr>
+</table><!-- /OUTER WRAPPER -->
+
+</body>
+</html>
