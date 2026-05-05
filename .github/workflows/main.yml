@@ -19,11 +19,11 @@ jobs:
         run: >
           mvn clean install
           -DMAIL_DATABASE_URL=${{secrets.MAIL_DATABASE_URL}}
-          -DMAIL_DATABASE_PASSWORD=${{secrets.DB_PASSWORD}}
-          -DMAIL_DATABASE_USERNAME=${{secrets.DB_USERNAME}}
+          -DMAIL_DATABASE_PASSWORD=${{secrets.MAIL_DATABASE_PASSWORD}}
+          -DMAIL_DATABASE_USERNAME=${{secrets.MAIL_DATABASE_USERNAME}}
           -DSHARED_KEY=${{secrets.SHARED_KEY}}
-          -DMAIL_PASSWORD=${{secrets.MAIL_DATABASE_PASSWORD}}
-          -DMAIL_USERNAME=${{secrets.MAIL_DATABASE_USERNAME}}
+          -DMAIL_PASSWORD=${{secrets.MAIL_PASSWORD}}
+          -DMAIL_USERNAME=${{secrets.MAIL_USERNAME}}
       - name: build image
         run: docker build -t mailing-service .
       - name: tag image
