@@ -18,9 +18,9 @@ jobs:
       - name: build application
         run: >
           mvn clean install
-          -DDB_URL=${{secrets.MAIL_DATABASE_URL}}
-          -DDB_PASSWORD=${{secrets.DB_PASSWORD}}
-          -DDB_USERNAME=${{secrets.DB_USERNAME}}
+          -DMAIL_DATABASE_URL=${{secrets.MAIL_DATABASE_URL}}
+          -DMAIL_DATABASE_PASSWORD=${{secrets.DB_PASSWORD}}
+          -DMAIL_DATABASE_USERNAME=${{secrets.DB_USERNAME}}
           -DSHARED_KEY=${{secrets.SHARED_KEY}}
           -DMAIL_PASSWORD=${{secrets.MAIL_DATABASE_PASSWORD}}
           -DMAIL_USERNAME=${{secrets.MAIL_DATABASE_USERNAME}}
