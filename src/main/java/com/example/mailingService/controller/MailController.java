@@ -51,5 +51,9 @@ public class MailController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/ping")
+    public ResponseEntity<?> ping(){
+        return new ResponseEntity<>("pong", HttpStatus.OK);
+    }
 
 }
