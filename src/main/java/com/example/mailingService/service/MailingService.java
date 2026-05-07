@@ -44,6 +44,7 @@ public class MailingService {
         String html = templateEngine.process("mailingTemplate", context);
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setFrom("adedijiay123@gmail.com");
         helper.setTo(mail.getTo());
         helper.setSubject(mail.getSubject());
         helper.setText(html, true);
