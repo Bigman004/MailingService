@@ -24,6 +24,7 @@ jobs:
           -DSHARED_KEY=${{secrets.SHARED_KEY}}
           -DMAIL_PASSWORD=${{secrets.MAIL_PASSWORD}}
           -DMAIL_USERNAME=${{secrets.MAIL_USERNAME}}
+          -DBREVO_MAIL_PASSWORD=${{secrets.BREVO_MAIL_PASSWORD}}
       - name: build image
         run: docker build -t mailing-service .
       - name: tag image

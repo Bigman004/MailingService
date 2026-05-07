@@ -5,6 +5,7 @@ import com.example.mailingService.dto.OrderDto;
 import com.example.mailingService.repository.MailingRepository;
 import com.example.mailingService.service.MailingService;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class MailController {
     @Autowired
     private MailingService mailingService;
@@ -30,6 +32,7 @@ public class MailController {
 
     @PostMapping("/send_mail")
     public ResponseEntity<?> sendMail(@RequestBody MailDto mailDto){
+        log.info("mail received... mailing service");
         try{
             mailingService.sendHtmlMail(mailDto);
             return new ResponseEntity<>("mail has been sent to server", HttpStatus.OK);
@@ -42,6 +45,8 @@ public class MailController {
     }
     @PostMapping("/send_reciept")
     public ResponseEntity<?> sendReciept(@RequestBody OrderDto orderDto){
+        log.info("order received... mailing service");
+
         try{
             mailingService.sendReciept(orderDto);
             return new ResponseEntity<>("receipt has been sent to recipient", HttpStatus.OK);
