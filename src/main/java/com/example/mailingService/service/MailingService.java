@@ -60,6 +60,7 @@ public class MailingService {
      String html = templateEngine.process("recieptTemplate", context);
      MimeMessage mimeMessage = mailSender.createMimeMessage();
      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+     helper.setFrom("adedijiay123@gmail.com");
      helper.setTo(order.getEmail());
      helper.setSubject("A spark payment");
      helper.setText(html, true);
