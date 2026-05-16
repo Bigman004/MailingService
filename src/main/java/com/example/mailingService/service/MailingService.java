@@ -67,7 +67,26 @@ public class MailingService {
              receiptMailBuilder(order)
      );
     }
+    public void sendResetLink(String link, String email) throws MessagingException{
+        Context  context = new Context();
+        context.setVariable("resetLink", link);
+        String html = templateEngine.process("passwordReset", context);
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setTo(email);
+        helper.setSubject("Reset link");
+        helper.setText(html, true);
+        mailSender.send(mimeMessage);
+        mailingRepository.save(
+                Mail.builder()
+                        .status("sent")
+                        .content("PASSWORD RESET")
+                        .timestamp(LocalDateTime.now())
+                        .build()
+        );
 
+
+    }
     public static Mail mailBuilder(MailDto mailDto)
     {
         return Mail.builder()

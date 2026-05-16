@@ -2,9 +2,11 @@ package com.example.mailingService.controller;
 
 import com.example.mailingService.dto.MailDto;
 import com.example.mailingService.dto.OrderDto;
+import com.example.mailingService.dto.PasswordLinkDto;
 import com.example.mailingService.repository.MailingRepository;
 import com.example.mailingService.service.MailingService;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 public class MailController {
     @Autowired
@@ -51,5 +54,17 @@ public class MailController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @PostMapping("/send_password_link")
+    public ResponseEntity<?> sendPasswordLink(@RequestBody PasswordLinkDto request){
+        try {
+            mailingService.sendResetLink(request.getLink(), request.getEmail());
+            return new ResponseEntity<>("password link has been sent to server", HttpStatus.OK);
+        } catch (MessagingException e) {
+            log.error("Sending password link failed", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }
