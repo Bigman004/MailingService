@@ -17,7 +17,6 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@Slf4j
 public class MailController {
     @Autowired
     private MailingService mailingService;
