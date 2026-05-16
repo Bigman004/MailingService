@@ -75,6 +75,7 @@ public class MailingService {
         String html = templateEngine.process("passwordReset", context);
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setFrom("adedijiay123@gmail.com");
         helper.setTo(email);
         helper.setSubject("Reset link");
         helper.setText(html, true);
